@@ -4,7 +4,7 @@ import { initReactI18next } from 'react-i18next';
 const resources = {
   en: {
     translation: {
-      appName: 'Kindle Tracker',
+      appName: 'Hyper Reader',
       loginTitle: 'Track your reading, beautifully',
       loginSubtitle: 'Sign in with Google to manage your books.',
       loginWithGoogle: 'Continue with Google',
@@ -34,7 +34,7 @@ const resources = {
   },
   fr: {
     translation: {
-      appName: 'Kindle Tracker',
+      appName: 'Hyper Reader',
       loginTitle: 'Suivez vos lectures, avec style',
       loginSubtitle: 'Connectez-vous avec Google pour gérer vos livres.',
       loginWithGoogle: 'Continuer avec Google',
