@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Book } from '../../lib/api';
 
@@ -10,6 +10,29 @@ interface BookCoverModalProps {
 }
 
 export function BookCoverModal({ book, onClose, onSelectCover, t }: BookCoverModalProps) {
+  // Handle browser back button on mobile
+  useEffect(() => {
+    const handlePopState = (e: PopStateEvent) => {
+      e.preventDefault();
+      onClose();
+    };
+
+    // Add history entry only on mobile
+    const isMobile = window.innerWidth < 640;
+    if (isMobile) {
+      window.history.pushState({ modal: true }, '');
+      window.addEventListener('popstate', handlePopState);
+    }
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      // Go back in history if we added an entry
+      if (isMobile) {
+        window.history.back();
+      }
+    };
+  }, [onClose]);
+
   const [options, setOptions] = React.useState<string[]>([]);
   const [loading, setLoading] = React.useState(false);
   const [manualUrl, setManualUrl] = React.useState(book.coverUrl || '');
@@ -51,14 +74,40 @@ export function BookCoverModal({ book, onClose, onSelectCover, t }: BookCoverMod
   }, [book.title, book.author]);
 
   return (
-    <div className="fixed inset-0 z-50">
-      <div className="absolute inset-0 bg-black/60" onClick={onClose} />
+    <div className="fixed inset-0" style={{ zIndex: 60 }}>
       <motion.div
-        initial={{ opacity: 0, y: 20, scale: 0.99 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: 20, scale: 0.99 }}
-        transition={{ duration: 0.18, ease: 'easeOut' }}
-        className="absolute left-1/2 top-8 w-full max-w-2xl -translate-x-1/2 overflow-hidden rounded-3xl border border-slate-800/80 bg-slate-950/90 backdrop-blur shadow-2xl"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.3 }}
+        className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      <motion.div
+        initial={{ 
+          opacity: 0, 
+          scale: 0.98,
+          y: 20,
+          transform: 'translate(-50%, -50%)'
+        }}
+        animate={{ 
+          opacity: 1, 
+          scale: 1, 
+          y: 0,
+          transform: 'translate(-50%, -50%)'
+        }}
+        exit={{ 
+          opacity: 0, 
+          scale: 0.98,
+          y: 20,
+          transform: 'translate(-50%, -50%)'
+        }}
+        transition={{ 
+          duration: 0.3, 
+          ease: [0.4, 0, 0.2, 1],
+          scale: { type: "spring", stiffness: 300, damping: 25 }
+        }}
+        className="fixed inset-4 w-auto max-w-none overflow-hidden rounded-3xl border border-slate-800/80 bg-slate-950/90 backdrop-blur shadow-2xl sm:inset-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-2xl sm:-translate-x-1/2 sm:-translate-y-1/2"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between gap-3 border-b border-slate-800/80 px-4 py-3">
@@ -75,7 +124,7 @@ export function BookCoverModal({ book, onClose, onSelectCover, t }: BookCoverMod
           </button>
         </div>
 
-        <div className="max-h-[70vh] overflow-auto px-4 py-3 space-y-4">
+        <div className="h-[calc(100vh-8rem)] overflow-auto px-4 py-3 space-y-4 sm:max-h-[70vh] sm:h-auto">
           <div>
             <div className="text-[11px] uppercase tracking-wide text-slate-400">{t('coverOptions')}</div>
             {loading ? (
@@ -83,7 +132,7 @@ export function BookCoverModal({ book, onClose, onSelectCover, t }: BookCoverMod
             ) : options.length === 0 ? (
               <div className="mt-2 text-sm text-slate-400">{t('noCoversFound')}</div>
             ) : (
-              <div className="mt-2 grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-3">
                 {options.map((url: string) => (
                   <button
                     key={url}
@@ -96,7 +145,9 @@ export function BookCoverModal({ book, onClose, onSelectCover, t }: BookCoverMod
                 ))}
               </div>
             )}
-            {error ? <div className="mt-2 text-sm text-rose-300">{error}</div> : null}
+            {error && (
+              <div className="mt-2 text-sm text-rose-300">{error}</div>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -124,6 +175,17 @@ export function BookCoverModal({ book, onClose, onSelectCover, t }: BookCoverMod
               </button>
             </div>
           </div>
+        </div>
+
+        {/* Mobile-specific close button */}
+        <div className="border-t border-slate-800/80 px-4 py-3 sm:hidden">
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-full rounded-2xl border border-slate-800/80 bg-slate-900/35 px-4 py-3 text-sm font-medium text-slate-200 hover:bg-slate-900/55 transition"
+          >
+            {t('close')}
+          </button>
         </div>
       </motion.div>
     </div>

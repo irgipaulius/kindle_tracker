@@ -23,7 +23,6 @@ import { SortableHeader } from '../components/table/SortableHeader';
 import { InlineText } from '../components/table/InlineText';
 import { BookCompactCard } from '../components/books/BookCompactCard';
 import { BookDetailsSheet } from '../components/books/BookDetailsSheet';
-import { BookCoverModal } from '../components/books/BookCoverModal';
 import { useBookQueries } from '../hooks/useBookQueries';
 import { useBookMutations } from '../hooks/useBookMutations';
 
@@ -42,12 +41,10 @@ export function BooksScreen() {
   }, [viewMode]);
 
   const [detailsId, setDetailsId] = React.useState<string | null>(null);
-  const [coverModalId, setCoverModalId] = React.useState<string | null>(null);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState('');
 
   const detailsBook = React.useMemo(() => books.find((b) => b._id === detailsId) || null, [books, detailsId]);
-  const coverModalBook = React.useMemo(() => books.find((b) => b._id === coverModalId) || null, [books, coverModalId]);
 
   React.useEffect(() => {
     const handle = window.setTimeout(() => {
@@ -195,8 +192,11 @@ export function BooksScreen() {
 
   const rows = table.getRowModel().rows;
 
-  function onAddBook() {
-    createBook({ title: 'New book' });
+  async function onAddBook() {
+    const newBook = await createBook({ title: '' });
+    if (newBook?._id) {
+      setDetailsId(newBook._id);
+    }
   }
 
   const availableColumns = useMemo(() => {
@@ -274,20 +274,8 @@ export function BooksScreen() {
             onClose={() => setDetailsId(null)}
             onPatchBook={patchBook}
             onDelete={deleteBook}
-            onOpenCoverModal={() => setCoverModalId(detailsBook._id)}
             genreOptions={genreOptions}
             onAddGenre={upsertGenre}
-            t={t}
-          />
-        ) : null}
-        {coverModalBook ? (
-          <BookCoverModal
-            book={coverModalBook}
-            onClose={() => setCoverModalId(null)}
-            onSelectCover={(url) => {
-              patchBook(coverModalBook._id, { coverUrl: url || null });
-              setCoverModalId(null);
-            }}
             t={t}
           />
         ) : null}

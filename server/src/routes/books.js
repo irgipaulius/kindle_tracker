@@ -25,7 +25,6 @@ router.post('/', requireAuth, async (req, res) => {
     comment,
   } = req.body;
 
-  if (!title || typeof title !== 'string') return res.status(400).json({ error: 'invalid_title' });
   const last = await Book.findOne({ userId: req.user.id }).sort({ index: -1 }).select({ index: 1 });
   const nextIndex = (last?.index || 0) + 1;
 

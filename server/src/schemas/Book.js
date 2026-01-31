@@ -6,7 +6,7 @@ const BookSchema = new mongoose.Schema(
 
     index: { type: Number, default: 0, index: true },
 
-    title: { type: String, required: true },
+    title: { type: String },
     author: { type: String },
     coverUrl: { type: String },
     status: { type: String, enum: ['to_read', 'reading', 'read'], default: 'to_read' },

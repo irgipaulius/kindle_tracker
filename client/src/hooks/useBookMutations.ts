@@ -60,8 +60,8 @@ export function useBookMutations() {
     updateBookMutation.mutate({ id, patch });
   };
 
-  const createBook = (payload: { title: string }) => {
-    createBookMutation.mutate(payload);
+  const createBook = async (payload: { title: string }) => {
+    return createBookMutation.mutateAsync(payload);
   };
 
   const deleteBook = (id: string) => {
