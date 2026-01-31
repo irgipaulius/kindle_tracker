@@ -8,6 +8,7 @@ import { GenreInput } from '../GenreInput';
 import { StarRating } from '../StarRating';
 import { InlineText } from '../table/InlineText';
 import { statusLabel } from '../../utils/bookHelpers';
+import { StatusSelect } from './StatusSelect';
 import { X, BookOpen, Calendar, Star, Tag, Globe, MessageSquare, Download } from 'lucide-react';
 
 interface BookDetailsSheetProps {
@@ -43,7 +44,7 @@ export function BookDetailsSheet({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm"
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm pointer-events-none"
             style={{ zIndex: 50 }}
           />
         </Dialog.Overlay>
@@ -54,7 +55,7 @@ export function BookDetailsSheet({
             animate={{ opacity: 1, scale: 1, y: 0, transform: 'translate(-50%, -50%)' }}
             exit={{ opacity: 0, scale: 0.95, y: 20, transform: 'translate(-50%, -50%)' }}
             transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
-            className="fixed left-1/2 top-1/2 w-full max-w-2xl border border-violet-200/20 bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900 shadow-2xl rounded-2xl sm:rounded-3xl"
+            className="fixed left-1/2 top-1/2 w-full max-w-2xl border border-violet-200/20 bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900 shadow-2xl rounded-2xl sm:rounded-3xl pointer-events-auto"
             style={{ zIndex: 50 }}
           >
             {/* Header */}
@@ -140,22 +141,13 @@ export function BookDetailsSheet({
                 {/* Grid Form */}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   {/* Status */}
-                  <div className="space-y-2">
-                    <label className="flex items-center gap-2 text-xs font-medium text-violet-200/70 uppercase tracking-wider">
-                      <div className="h-2 w-2 rounded-full bg-gradient-to-r from-violet-500 to-purple-500" />
-                      {t('status')}
-                    </label>
-                    <select
+                  <div className="flex items-center justify-center">
+                    <StatusSelect
                       value={book.status}
-                      onChange={(e: React.ChangeEvent<HTMLSelectElement>) => 
-                        onPatchBook(book._id, { status: e.target.value as Book['status'] })
-                      }
-                      className="w-full rounded-xl border border-violet-200/20 bg-slate-800/50 px-4 py-3 text-white backdrop-blur-sm transition-colors focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-400/20"
-                    >
-                      <option value="to_read">{statusLabel(t, 'to_read')}</option>
-                      <option value="reading">{statusLabel(t, 'reading')}</option>
-                      <option value="read">{statusLabel(t, 'read')}</option>
-                    </select>
+                      onChange={(status) => onPatchBook(book._id, { status })}
+                      t={t}
+                      size="md"
+                    />
                   </div>
 
                   {/* Downloaded */}

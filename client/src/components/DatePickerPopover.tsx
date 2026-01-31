@@ -1,6 +1,6 @@
 import React from 'react';
-
 import { Popover } from './Popover';
+import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 
 type Props = {
   value?: string | null;
@@ -35,21 +35,12 @@ export function DatePickerPopover({ value, onChange, placeholder = '—' }: Prop
   const selected = isoToDate(value);
   const now = React.useMemo(() => new Date(), []);
   const [year, setYear] = React.useState<number>(selected?.getFullYear() ?? now.getFullYear());
-  const [month, setMonth] = React.useState<number>(selected?.getMonth() ?? now.getMonth());
 
   React.useEffect(() => {
     if (!open) return;
     if (!selected) return;
     setYear(selected.getFullYear());
-    setMonth(selected.getMonth());
   }, [open, selected]);
-
-  const years = React.useMemo(() => {
-    const y = now.getFullYear();
-    const out: number[] = [];
-    for (let i = y - 20; i <= y + 2; i++) out.push(i);
-    return out;
-  }, [now]);
 
   const monthNames = React.useMemo(() => {
     try {
@@ -60,67 +51,80 @@ export function DatePickerPopover({ value, onChange, placeholder = '—' }: Prop
     }
   }, []);
 
+  const handleMonthClick = (monthIndex: number) => {
+    onChange(toFirstOfMonthISO(year, monthIndex));
+    setOpen(false);
+  };
+
+  const selectedMonth = selected?.getFullYear() === year ? selected.getMonth() : null;
+
   return (
     <Popover
       open={open}
       onOpenChange={setOpen}
       align="left"
-      widthClassName="w-[320px]"
+      widthClassName="w-auto"
       trigger={
         <button
           type="button"
-          className="w-full text-left rounded-lg border border-slate-800 bg-slate-950/30 px-2 py-1 hover:bg-slate-900/50 transition"
+          className="inline-block rounded-full border border-slate-800 bg-slate-950/30 px-2 py-1 text-[11px] text-slate-200 hover:bg-slate-900/50 transition"
         >
           {selected ? toMonthLabel(selected) : <span className="text-slate-500">{placeholder}</span>}
         </button>
       }
     >
-      <div className="p-3">
-        <div className="grid grid-cols-2 gap-2">
-          <select
-            value={month}
-            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setMonth(Number(e.target.value))}
-            className="w-full rounded-2xl border border-slate-800 bg-slate-950/30 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500/40"
+      <div className="p-4 min-w-[320px] sm:min-w-[380px] pointer-events-auto">
+        {/* Year Navigation */}
+        <div className="flex items-center justify-between mb-4">
+          <button
+            type="button"
+            onClick={() => setYear(year - 1)}
+            className="rounded-lg p-2 hover:bg-slate-800/50 transition pointer-events-auto"
+            aria-label="Previous year"
           >
-            {monthNames.map((label, idx) => (
-              <option key={label} value={idx}>
-                {label}
-              </option>
-            ))}
-          </select>
-          <select
-            value={year}
-            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setYear(Number(e.target.value))}
-            className="w-full rounded-2xl border border-slate-800 bg-slate-950/30 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500/40"
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <div className="text-lg font-semibold">{year}</div>
+          <button
+            type="button"
+            onClick={() => setYear(year + 1)}
+            className="rounded-lg p-2 hover:bg-slate-800/50 transition pointer-events-auto"
+            aria-label="Next year"
           >
-            {years.map((y) => (
-              <option key={y} value={y}>
-                {y}
-              </option>
-            ))}
-          </select>
+            <ChevronRight className="h-5 w-5" />
+          </button>
         </div>
 
-        <div className="mt-3 flex justify-between">
+        {/* 12-Month Grid */}
+        <div className="grid grid-cols-3 gap-2 sm:gap-3">
+          {monthNames.map((label, idx) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => handleMonthClick(idx)}
+              className={`rounded-xl px-4 py-3 text-sm font-medium transition pointer-events-auto ${
+                selectedMonth === idx
+                  ? 'bg-indigo-500 text-white'
+                  : 'border border-slate-800 bg-slate-950/30 text-slate-200 hover:bg-slate-900/50'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {/* Clear Button */}
+        <div className="mt-4 flex justify-center">
           <button
             type="button"
             onClick={() => {
               onChange(null);
               setOpen(false);
             }}
-            className="rounded-xl border border-slate-800 bg-slate-900/40 px-3 py-2 text-sm hover:bg-slate-900/70 transition"
+            className="flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/40 px-4 py-2 text-sm hover:bg-slate-900/70 transition pointer-events-auto"
           >
+            <X className="h-4 w-4" />
             Clear
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              onChange(toFirstOfMonthISO(year, month));
-              setOpen(false);
-            }}
-            className="rounded-xl bg-indigo-500 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-400 transition"
-          >
-            Done
           </button>
         </div>
       </div>

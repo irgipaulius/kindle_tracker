@@ -2,7 +2,10 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Book } from '../../lib/api';
 import { StarRating } from '../StarRating';
-import { StatusBadge } from './StatusBadge';
+import { FinishedDateBadge } from './StatusBadge';
+import { StatusSelect } from './StatusSelect';
+import { DatePickerPopover } from '../DatePickerPopover';
+import { Download } from 'lucide-react';
 
 interface BookCompactCardProps {
   book: Book;
@@ -14,52 +17,6 @@ interface BookCompactCardProps {
 }
 
 export function BookCompactCard({ book, index, onPatchBook, onDelete, onOpenDetails, t }: BookCompactCardProps) {
-  const finishedLabel = React.useMemo(() => {
-    if (!book.finishedDate) return null;
-    const d = new Date(book.finishedDate);
-    if (Number.isNaN(d.getTime())) return null;
-    try {
-      return new Intl.DateTimeFormat(undefined, { month: 'short', year: 'numeric' }).format(d);
-    } catch {
-      const yyyy = d.getFullYear();
-      const mm = String(d.getMonth() + 1).padStart(2, '0');
-      return `${yyyy}-${mm}`;
-    }
-  }, [book.finishedDate]);
-
-  function StatusToggle() {
-    const options: { id: Book['status']; label: string }[] = [
-      { id: 'to_read', label: t('toRead') },
-      { id: 'reading', label: t('reading') },
-      { id: 'read', label: t('read') },
-    ];
-
-    return (
-      <div className="inline-flex overflow-hidden rounded-full border border-slate-800 bg-slate-950/25">
-        {options.map((o) => {
-          const active = book.status === o.id;
-          return (
-            <button
-              key={o.id}
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onPatchBook(book._id, { status: o.id });
-              }}
-              className={`px-2 py-1 text-[11px] transition ${
-                active
-                  ? 'bg-indigo-500/20 text-indigo-100'
-                  : 'text-slate-300 hover:bg-slate-900/40'
-              }`}
-            >
-              {o.label}
-            </button>
-          );
-        })}
-      </div>
-    );
-  }
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -94,41 +51,56 @@ export function BookCompactCard({ book, index, onPatchBook, onDelete, onOpenDeta
 
             <div className="min-w-0 flex-1">
               <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <div className="truncate text-sm font-semibold tracking-tight">{book.title || t('title')}</div>
                   <div className="mt-0.5 truncate text-xs text-slate-400">{book.author || '—'}</div>
                 </div>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDelete(book._id);
-                  }}
-                  className="shrink-0 rounded-2xl border border-slate-800 bg-slate-950/30 px-2 py-1 text-xs hover:bg-rose-500/20 hover:border-rose-500/40 transition"
-                  aria-label="Delete"
-                  type="button"
-                >
-                  ✕
-                </button>
+                <div className="flex items-center gap-1 shrink-0">
+                  {book.finishedDate && (
+                    <div onClick={(e) => e.stopPropagation()}>
+                      <DatePickerPopover
+                        value={book.finishedDate}
+                        onChange={(v) => onPatchBook(book._id, { finishedDate: v })}
+                      />
+                    </div>
+                  )}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete(book._id);
+                    }}
+                    className="rounded-2xl border border-slate-800 bg-slate-950/30 px-2 py-1 text-xs hover:bg-rose-500/20 hover:border-rose-500/40 transition"
+                    aria-label="Delete"
+                    type="button"
+                  >
+                    ✕
+                  </button>
+                </div>
               </div>
 
               <div className="mt-2 flex flex-wrap items-center gap-2">
-                <StatusToggle />
-
-                {finishedLabel ? <StatusBadge label={finishedLabel} /> : null}
+                <div onClick={(e) => e.stopPropagation()}>
+                  <StatusSelect
+                    value={book.status}
+                    onChange={(status) => onPatchBook(book._id, { status })}
+                    t={t}
+                  />
+                </div>
 
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     onPatchBook(book._id, { downloaded: !book.downloaded });
                   }}
-                  className={`rounded-full border px-2 py-1 text-[11px] transition ${
+                  className={`rounded-full border p-1.5 transition ${
                     book.downloaded
                       ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-200 hover:bg-emerald-500/15'
-                      : 'border-slate-800 bg-slate-950/30 text-slate-200 hover:bg-slate-900/50'
+                      : 'border-slate-800 bg-slate-950/30 text-slate-400 hover:bg-slate-900/50'
                   }`}
                   type="button"
+                  title={`${t('downloaded')}: ${book.downloaded ? t('yes') : t('no')}`}
                 >
-                  {t('downloaded')}: {book.downloaded ? t('yes') : t('no')}
+                  <Download className="h-3 w-3" />
                 </button>
 
                 <div

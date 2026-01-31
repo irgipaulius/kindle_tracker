@@ -28,8 +28,20 @@ export function Popover({
     const r = el.getBoundingClientRect();
     const margin = 8;
     const vw = window.innerWidth;
+    const vh = window.innerHeight;
 
-    const top = Math.round(r.bottom + margin);
+    // Estimate popover height (will be adjusted by actual content)
+    const estimatedPopoverHeight = 400; // rough estimate for DatePickerPopover
+    const spaceBelow = vh - r.bottom;
+    const spaceAbove = r.top;
+
+    // Decide if popover should flip to top
+    const shouldFlipToTop = spaceBelow < estimatedPopoverHeight && spaceAbove > spaceBelow;
+
+    const top = shouldFlipToTop 
+      ? Math.max(12, Math.round(r.top - estimatedPopoverHeight - margin))
+      : Math.round(r.bottom + margin);
+
     const desiredLeft = align === 'right' ? r.right : r.left;
     const maxWidth = Math.max(280, Math.min(420, vw - 24));
 
@@ -80,14 +92,14 @@ export function Popover({
             <AnimatePresence>
               {open ? (
                 <>
-                  <div className="fixed inset-0 z-40" onClick={() => onOpenChange(false)} />
+                  <div className="fixed inset-0 z-[9998] pointer-events-auto" onClick={() => onOpenChange(false)} />
                   <motion.div
                     initial={{ opacity: 0, y: -6, scale: 0.98 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -6, scale: 0.98 }}
                     transition={{ duration: 0.15 }}
-                    style={{ top: pos.top, left: pos.left }}
-                    className={`fixed z-50 max-w-[calc(100vw-24px)] ${widthClassName} overflow-hidden rounded-2xl border border-slate-800 bg-slate-950/90 backdrop-blur shadow-2xl`}
+                    style={{ top: pos.top, left: pos.left, pointerEvents: 'auto' }}
+                    className={`pointer-events-auto fixed z-[9999] max-w-[calc(100vw-24px)] ${widthClassName} overflow-hidden rounded-2xl border border-slate-800 bg-slate-950/90 backdrop-blur shadow-2xl`}
                     onClick={(e) => e.stopPropagation()}
                   >
                     {children}
