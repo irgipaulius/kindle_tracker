@@ -1,0 +1,16 @@
+{
+  "name": "kindle-tracker",
+  "private": true,
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "dev": "concurrently -n server,client -c blue,green \"npm:dev --workspace server\" \"npm:dev --workspace client\"",
+    "dev:server": "npm run dev --workspace server",
+    "dev:client": "npm run dev --workspace client"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

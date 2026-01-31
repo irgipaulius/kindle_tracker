@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+body {
+  @apply bg-slate-950 text-slate-50 antialiased;
+  background-image:
+    radial-gradient(1200px 800px at 20% -20%, rgba(99, 102, 241, 0.35), transparent 60%),
+    radial-gradient(900px 700px at 90% 10%, rgba(217, 70, 239, 0.28), transparent 55%),
+    radial-gradient(1000px 800px at 50% 120%, rgba(34, 211, 238, 0.16), transparent 60%),
+    linear-gradient(180deg, rgba(2, 6, 23, 1) 0%, rgba(2, 6, 23, 1) 30%, rgba(2, 6, 23, 0.98) 100%);
+  background-attachment: fixed;
+}
+
+@media (max-width: 640px) {
+  body {
+    background-attachment: scroll;
+  }
+}
+
+::selection {
+  background: rgba(99, 102, 241, 0.35);
+}
+
+a {
+  @apply text-slate-100;
+}
+
+input::placeholder,
+textarea::placeholder {
+  @apply text-slate-500;
+}

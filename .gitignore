@@ -1,0 +1,43 @@
+# Node/Vite build artifacts
+node_modules
+client/node_modules
+server/node_modules
+
+# Bundler outputs
+dist
+client/dist
+server/dist
+
+# Env & local config
+.env
+.env.*
+!.env.example
+client/.env
+client/.env.*
+!client/.env.example
+server/.env
+server/.env.*
+!server/.env.example
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor & OS
+.DS_Store
+.vscode/
+.idea/
+.env
+
+# Misc
+*.local
+*.log
+
+# Vite
+.vite
+client/.vite
+server/.vite
+
+example/
