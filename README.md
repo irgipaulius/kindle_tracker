@@ -9,18 +9,15 @@ Full website: https://hyperreader.eu
 ### 1) Clone the repository
 
 ```sh
-git clone https://github.com/yourusername/hyper-reader.git
-cd hyper-reader
+git clone https://github.com/irgipaulius/kindle_tracker.git
+cd kindle_tracker
 ```
 
 ### 2) Configure environment variables
 
 ```sh
-cd server
-cp .env.example .env
-cd ../client
-cp .env.example .env
-cd ..
+cp server/.env.example server/.env
+cp client/.env.example client/.env
 ```
 
 ### 3) Install dependencies
