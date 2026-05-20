@@ -58,11 +58,11 @@ export async function verifyOAuthState(state: string, sessionSecret: string): Pr
 
 export function buildGoogleAuthUrl(env: {
   GOOGLE_CLIENT_ID: string;
-  APP_URL: string;
+  appUrl: string;
   SESSION_SECRET: string;
 }): Promise<string> {
   return createOAuthState(env.SESSION_SECRET).then((state) => {
-    const redirectUri = `${env.APP_URL}/auth/google/callback`;
+    const redirectUri = `${env.appUrl}/auth/google/callback`;
     const params = new URLSearchParams({
       client_id: env.GOOGLE_CLIENT_ID,
       redirect_uri: redirectUri,
@@ -78,9 +78,9 @@ export function buildGoogleAuthUrl(env: {
 
 export async function exchangeCodeForProfile(
   code: string,
-  env: { GOOGLE_CLIENT_ID: string; GOOGLE_CLIENT_SECRET: string; APP_URL: string }
+  env: { GOOGLE_CLIENT_ID: string; GOOGLE_CLIENT_SECRET: string; appUrl: string }
 ): Promise<{ googleId: string; email: string | null; name: string; picture: string | null }> {
-  const redirectUri = `${env.APP_URL}/auth/google/callback`;
+  const redirectUri = `${env.appUrl}/auth/google/callback`;
   const tokenRes = await fetch(GOOGLE_TOKEN, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },

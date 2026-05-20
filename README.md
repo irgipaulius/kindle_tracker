@@ -63,6 +63,9 @@ Edit **[`.dev.vars`](.dev.vars) in the repo root** (not `worker/.dev.vars` — W
 |-------------|----------------|
 | Local (`npm run dev`) | `http://localhost:5173/auth/google/callback` |
 | Production | `https://hyperreader.eu/auth/google/callback` |
+| Workers.dev preview | `https://<your-subdomain>.workers.dev/auth/google/callback` |
+
+Use `/auth/google/callback` — **not** `/api/auth/...` (there is no `/api` prefix on auth routes).
 
 ### 4) Production secrets (Cloudflare dashboard or CLI)
 
