@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Popover } from './Popover';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 
@@ -15,9 +16,9 @@ function isoToDate(value?: string | null) {
   return d;
 }
 
-function toMonthLabel(d: Date) {
+function toMonthLabel(d: Date, locale: string) {
   try {
-    return new Intl.DateTimeFormat(undefined, { month: 'short', year: 'numeric' }).format(d);
+    return new Intl.DateTimeFormat(locale, { month: 'short', year: 'numeric' }).format(d);
   } catch {
     const yyyy = d.getFullYear();
     const mm = String(d.getMonth() + 1).padStart(2, '0');
@@ -30,7 +31,10 @@ function toFirstOfMonthISO(year: number, monthIndex0: number) {
   return d.toISOString();
 }
 
-export function DatePickerPopover({ value, onChange, placeholder = '—' }: Props) {
+export function DatePickerPopover({ value, onChange, placeholder }: Props) {
+  const { t, i18n } = useTranslation();
+  const resolvedPlaceholder = placeholder ?? t('emptyPlaceholder');
+  const locale = i18n.language === 'fr' ? 'fr-FR' : 'en-US';
   const [open, setOpen] = React.useState(false);
   const selected = isoToDate(value);
   const now = React.useMemo(() => new Date(), []);
@@ -44,12 +48,12 @@ export function DatePickerPopover({ value, onChange, placeholder = '—' }: Prop
 
   const monthNames = React.useMemo(() => {
     try {
-      const fmt = new Intl.DateTimeFormat(undefined, { month: 'short' });
+      const fmt = new Intl.DateTimeFormat(locale, { month: 'short' });
       return Array.from({ length: 12 }, (_, i) => fmt.format(new Date(2020, i, 1)));
     } catch {
-      return ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      return Array.from({ length: 12 }, (_, i) => String(i + 1));
     }
-  }, []);
+  }, [locale]);
 
   const handleMonthClick = (monthIndex: number) => {
     onChange(toFirstOfMonthISO(year, monthIndex));
@@ -69,18 +73,21 @@ export function DatePickerPopover({ value, onChange, placeholder = '—' }: Prop
           type="button"
           className="inline-block rounded-full border border-slate-800 bg-slate-950/30 px-2 py-1 text-[11px] text-slate-200 hover:bg-slate-900/50 transition"
         >
-          {selected ? toMonthLabel(selected) : <span className="text-slate-500">{placeholder}</span>}
+          {selected ? (
+            toMonthLabel(selected, locale)
+          ) : (
+            <span className="text-slate-500">{resolvedPlaceholder}</span>
+          )}
         </button>
       }
     >
       <div className="p-4 min-w-[320px] sm:min-w-[380px] pointer-events-auto">
-        {/* Year Navigation */}
         <div className="flex items-center justify-between mb-4">
           <button
             type="button"
             onClick={() => setYear(year - 1)}
             className="rounded-lg p-2 hover:bg-slate-800/50 transition pointer-events-auto"
-            aria-label="Previous year"
+            aria-label={t('previousYear')}
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
@@ -89,13 +96,12 @@ export function DatePickerPopover({ value, onChange, placeholder = '—' }: Prop
             type="button"
             onClick={() => setYear(year + 1)}
             className="rounded-lg p-2 hover:bg-slate-800/50 transition pointer-events-auto"
-            aria-label="Next year"
+            aria-label={t('nextYear')}
           >
             <ChevronRight className="h-5 w-5" />
           </button>
         </div>
 
-        {/* 12-Month Grid */}
         <div className="grid grid-cols-3 gap-2 sm:gap-3">
           {monthNames.map((label, idx) => (
             <button
@@ -113,7 +119,6 @@ export function DatePickerPopover({ value, onChange, placeholder = '—' }: Prop
           ))}
         </div>
 
-        {/* Clear Button */}
         <div className="mt-4 flex justify-center">
           <button
             type="button"
@@ -124,7 +129,7 @@ export function DatePickerPopover({ value, onChange, placeholder = '—' }: Prop
             className="flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/40 px-4 py-2 text-sm hover:bg-slate-900/70 transition pointer-events-auto"
           >
             <X className="h-4 w-4" />
-            Clear
+            {t('clearDate')}
           </button>
         </div>
       </div>

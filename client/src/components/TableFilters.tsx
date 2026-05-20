@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   globalFilter: string;
@@ -6,12 +7,14 @@ type Props = {
 };
 
 export function TableFilters({ globalFilter, onGlobalFilterChange }: Props) {
+  const { t } = useTranslation();
+
   return (
     <div className="flex items-center gap-3">
       <input
         value={globalFilter}
         onChange={(e) => onGlobalFilterChange(e.target.value)}
-        placeholder="Search…"
+        placeholder={t('search')}
         className="w-full rounded-2xl border border-slate-800/80 bg-slate-900/30 px-4 py-3 text-sm outline-none shadow-[0_0_0_1px_rgba(255,255,255,0.03)] focus:ring-2 focus:ring-indigo-500/35"
       />
     </div>

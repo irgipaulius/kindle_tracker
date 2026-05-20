@@ -2,7 +2,8 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 
-import { api } from '../lib/api';
+import { BrandMark } from '../components/BrandMark';
+import { LocaleSwitcher } from '../components/LocaleSwitcher';
 
 export function LoginPage() {
   const { t } = useTranslation();
@@ -19,13 +20,14 @@ export function LoginPage() {
         initial={{ opacity: 0, y: 14, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.22, ease: 'easeOut' }}
-        className="w-full max-w-lg rounded-3xl bg-slate-900/35 border border-slate-800/80 shadow-2xl p-8 backdrop-blur"
+        className="relative w-full max-w-lg rounded-3xl bg-slate-900/35 border border-slate-800/80 shadow-2xl p-8 backdrop-blur"
       >
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-indigo-500 via-fuchsia-500 to-cyan-400 shadow-[0_0_0_1px_rgba(255,255,255,0.06),0_12px_50px_rgba(99,102,241,0.25)]" />
-            <div className="pointer-events-none absolute -inset-2 rounded-[22px] bg-gradient-to-br from-indigo-500/15 via-fuchsia-500/10 to-cyan-400/10 blur-xl" />
-          </div>
+        <div className="absolute top-6 right-6">
+          <LocaleSwitcher />
+        </div>
+
+        <div className="flex items-center gap-3 pr-24">
+          <BrandMark size="md" />
           <div>
             <div className="text-xs text-slate-400">{t('appName')}</div>
             <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">{t('loginTitle')}</h1>
@@ -35,13 +37,11 @@ export function LoginPage() {
         <p className="mt-3 text-slate-300">{t('loginSubtitle')}</p>
 
         <a
-          href={`${api.baseUrl}/auth/google`}
+          href="/auth/google"
           className="mt-8 inline-flex w-full items-center justify-center rounded-2xl bg-white text-slate-900 font-semibold px-4 py-3 hover:bg-slate-100 transition shadow-[0_10px_40px_rgba(255,255,255,0.10)]"
         >
           {t('loginWithGoogle')}
         </a>
-
-        <div className="mt-4 text-xs text-slate-500 break-all">{api.baseUrl}</div>
       </motion.div>
     </div>
   );

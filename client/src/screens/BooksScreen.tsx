@@ -25,6 +25,7 @@ import { BookCompactCard } from '../components/books/BookCompactCard';
 import { BookDetailsSheet } from '../components/books/BookDetailsSheet';
 import { useBookQueries } from '../hooks/useBookQueries';
 import { useBookMutations } from '../hooks/useBookMutations';
+import { bookColumnLabel } from '../lib/columnLabels';
 
 export function BooksScreen() {
   const { t } = useTranslation();
@@ -203,8 +204,8 @@ export function BooksScreen() {
     return table
       .getAllLeafColumns()
       .filter((c) => c.getCanSort())
-      .map((c) => ({ id: c.id, label: typeof c.columnDef.header === 'string' ? c.columnDef.header : c.id }));
-  }, [table]);
+      .map((c) => ({ id: c.id, label: bookColumnLabel(t, c.id) }));
+  }, [table, t]);
 
   return (
     <div className="w-full space-y-4 sm:space-y-5 overflow-x-hidden">
@@ -259,7 +260,7 @@ export function BooksScreen() {
 
       {rows.length === 0 ? (
         <div className="rounded-3xl border border-slate-800/80 bg-slate-900/20 p-8 text-center text-slate-400">
-          {t('addBook')}
+          {t('noBooks')}
         </div>
       ) : null}
 

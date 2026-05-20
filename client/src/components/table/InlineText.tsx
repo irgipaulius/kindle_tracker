@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface InlineTextProps {
   value: string;
@@ -6,7 +7,9 @@ interface InlineTextProps {
   placeholder?: string;
 }
 
-export function InlineText({ value, onCommit, placeholder = '—' }: InlineTextProps) {
+export function InlineText({ value, onCommit, placeholder }: InlineTextProps) {
+  const { t } = useTranslation();
+  const resolvedPlaceholder = placeholder ?? t('emptyPlaceholder');
   const [draft, setDraft] = React.useState(value);
   const inputRef = React.useRef<HTMLInputElement | null>(null);
 
@@ -41,7 +44,7 @@ export function InlineText({ value, onCommit, placeholder = '—' }: InlineTextP
         }
       }}
       className="w-full rounded-lg border border-slate-800 bg-slate-950/30 px-2 py-1 outline-none focus:ring-2 focus:ring-indigo-500/40"
-      placeholder={placeholder}
+      placeholder={resolvedPlaceholder}
     />
   );
 }

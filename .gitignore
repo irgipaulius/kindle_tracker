@@ -2,6 +2,12 @@
 node_modules
 client/node_modules
 server/node_modules
+worker/node_modules
+
+# Cloudflare Worker
+.wrangler
+.dev.vars
+worker/.dev.vars
 
 # Bundler outputs
 dist

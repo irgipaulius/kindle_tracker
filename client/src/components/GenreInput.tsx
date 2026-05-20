@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   value?: string;
@@ -8,6 +9,7 @@ type Props = {
 };
 
 export function GenreInput({ value, options, onChange, onAddOption }: Props) {
+  const { t } = useTranslation();
   const [draft, setDraft] = React.useState(value || '');
   const inputRef = React.useRef<HTMLInputElement | null>(null);
 
@@ -48,7 +50,7 @@ export function GenreInput({ value, options, onChange, onAddOption }: Props) {
         }}
         list={id}
         className="w-full rounded-lg border border-slate-800 bg-slate-950/30 px-2 py-1 outline-none focus:ring-2 focus:ring-indigo-500/40"
-        placeholder="—"
+        placeholder={t('emptyPlaceholder')}
       />
       <datalist id={id}>
         {options.map((o) => (
@@ -64,7 +66,7 @@ export function GenreInput({ value, options, onChange, onAddOption }: Props) {
         }}
         className="shrink-0 rounded-lg border border-slate-800 bg-slate-950/30 px-2 py-1 text-xs text-slate-300 hover:bg-slate-900/50 transition"
       >
-        Add
+        {t('addGenre')}
       </button>
     </div>
   );

@@ -1,6 +1,8 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
+import { readLocalePreference } from './lib/localeStorage';
+
 const resources = {
   en: {
     translation: {
@@ -12,6 +14,7 @@ const resources = {
       books: 'Books',
       manageBooksSubtitle: 'All your books in one place',
       addBook: 'Add book',
+      noBooks: 'No books yet. Add your first one above.',
       title: 'Title',
       author: 'Author',
       status: 'Status',
@@ -29,8 +32,39 @@ const resources = {
       no: 'No',
       locale: 'Language',
       english: 'English',
-      french: 'French'
-    }
+      french: 'French',
+      loading: 'Loading…',
+      search: 'Search…',
+      sort: 'Sort',
+      addSort: 'Add sort',
+      ascending: 'Ascending',
+      descending: 'Descending',
+      viewGrid: 'Grid',
+      viewList: 'List',
+      openDetails: 'Open details',
+      delete: 'Delete',
+      close: 'Close',
+      cancel: 'Cancel',
+      save: 'Save',
+      bookDetails: 'Book details',
+      addComment: 'Add a comment…',
+      bookId: 'Book ID',
+      cover: 'Cover',
+      coverOptions: 'Suggested covers',
+      noCoversFound: 'No covers found',
+      manualCoverUrl: 'Manual cover URL',
+      removeCover: 'Remove cover',
+      noCover: 'No cover',
+      clearDate: 'Clear',
+      clearRating: 'Clear',
+      previousYear: 'Previous year',
+      nextYear: 'Next year',
+      rateStars: 'Rate {{count}} stars',
+      errorGeneric: 'An error occurred',
+      emptyPlaceholder: '—',
+      addGenre: 'Add',
+      urlPlaceholder: 'https://…',
+    },
   },
   fr: {
     translation: {
@@ -42,7 +76,8 @@ const resources = {
       books: 'Livres',
       manageBooksSubtitle: 'Tous vos livres au même endroit',
       addBook: 'Ajouter un livre',
-      title: 'Nom du livre',
+      noBooks: 'Aucun livre pour le moment. Ajoutez-en un ci-dessus.',
+      title: 'Titre',
       author: 'Auteur',
       status: 'Statut',
       downloaded: 'Téléchargé',
@@ -59,16 +94,47 @@ const resources = {
       no: 'Non',
       locale: 'Langue',
       english: 'Anglais',
-      french: 'Français'
-    }
-  }
+      french: 'Français',
+      loading: 'Chargement…',
+      search: 'Rechercher…',
+      sort: 'Tri',
+      addSort: 'Ajouter un tri',
+      ascending: 'Croissant',
+      descending: 'Décroissant',
+      viewGrid: 'Grille',
+      viewList: 'Liste',
+      openDetails: 'Ouvrir les détails',
+      delete: 'Supprimer',
+      close: 'Fermer',
+      cancel: 'Annuler',
+      save: 'Enregistrer',
+      bookDetails: 'Détails du livre',
+      addComment: 'Ajouter un commentaire…',
+      bookId: 'ID du livre',
+      cover: 'Couverture',
+      coverOptions: 'Couvertures suggérées',
+      noCoversFound: 'Aucune couverture trouvée',
+      manualCoverUrl: 'URL de couverture manuelle',
+      removeCover: 'Retirer la couverture',
+      noCover: 'Pas de couverture',
+      clearDate: 'Effacer',
+      clearRating: 'Effacer',
+      previousYear: 'Année précédente',
+      nextYear: 'Année suivante',
+      rateStars: 'Noter {{count}} étoiles',
+      errorGeneric: 'Une erreur est survenue',
+      emptyPlaceholder: '—',
+      addGenre: 'Ajouter',
+      urlPlaceholder: 'https://…',
+    },
+  },
 } as const;
 
 i18n.use(initReactI18next).init({
   resources,
-  lng: 'en',
+  lng: readLocalePreference(),
   fallbackLng: 'en',
-  interpolation: { escapeValue: false }
+  interpolation: { escapeValue: false },
 });
 
 export default i18n;

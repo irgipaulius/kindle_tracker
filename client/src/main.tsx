@@ -4,15 +4,14 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { router } from './router';
 import { RouterProvider } from 'react-router-dom';
 import './styles.css';
-import './i18n';
+import i18n from './i18n';
 import { ToastProvider, useToast } from './components/Toast';
 
 const queryClient = new QueryClient({
   defaultOptions: {
     mutations: {
       onError: (error: any) => {
-        const message = error?.message || error?.error || 'An error occurred';
-        // Toast will be shown via global error boundary
+        const message = error?.message || error?.error || i18n.t('errorGeneric');
         console.error('Mutation error:', message);
       },
     },
@@ -27,7 +26,7 @@ function App() {
     queryClient.setDefaultOptions({
       mutations: {
         onError: (error: any) => {
-          const message = error?.message || error?.error || 'An error occurred';
+          const message = error?.message || error?.error || i18n.t('errorGeneric');
           showError(message);
         },
       },

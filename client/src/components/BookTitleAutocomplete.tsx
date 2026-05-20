@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 type Suggestion = {
   key: string;
@@ -23,7 +24,9 @@ function buildCoverUrl(coverId?: number) {
   return `https://covers.openlibrary.org/b/id/${coverId}-L.jpg`;
 }
 
-export function BookTitleAutocomplete({ value, author, onApply, placeholder = 'Title' }: Props) {
+export function BookTitleAutocomplete({ value, author, onApply, placeholder }: Props) {
+  const { t } = useTranslation();
+  const resolvedPlaceholder = placeholder ?? t('title');
   const [draft, setDraft] = React.useState(value || '');
   const [open, setOpen] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
@@ -190,14 +193,14 @@ export function BookTitleAutocomplete({ value, author, onApply, placeholder = 'T
             }
           }}
           className="w-full rounded-lg border border-slate-800 bg-slate-950/30 px-2 py-1 outline-none focus:ring-2 focus:ring-indigo-500/40"
-          placeholder={placeholder}
+          placeholder={resolvedPlaceholder}
           autoComplete="off"
           spellCheck={false}
         />
 
         {loading ? (
           <div className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[11px] text-slate-500">
-            Loading…
+            {t('loading')}
           </div>
         ) : null}
       </div>
@@ -232,7 +235,7 @@ export function BookTitleAutocomplete({ value, author, onApply, placeholder = 'T
                       />
                     </div>
                   ) : (
-                    <div className="shrink-0 text-[11px] text-slate-500">no cover</div>
+                    <div className="shrink-0 text-[11px] text-slate-500">{t('noCover')}</div>
                   )}
                 </button>
               );

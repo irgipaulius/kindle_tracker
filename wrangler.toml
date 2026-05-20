@@ -1,0 +1,22 @@
+name = "hyperreader"
+main = "worker/src/index.ts"
+compatibility_date = "2024-11-01"
+
+[vars]
+APP_URL = "https://hyperreader.eu"
+
+[assets]
+directory = "client/dist"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+run_worker_first = true
+
+[[d1_databases]]
+binding = "DB"
+database_name = "hyperreader"
+# Run: npx wrangler d1 create hyperreader — paste the returned id here before --remote deploy.
+database_id = "REPLACE_AFTER_wrangler_d1_create"
+migrations_dir = "worker/migrations"
+
+[dev]
+port = 8787

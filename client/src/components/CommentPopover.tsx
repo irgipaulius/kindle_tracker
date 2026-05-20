@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Popover } from './Popover';
 
 type Props = {
@@ -7,6 +8,7 @@ type Props = {
 };
 
 export function CommentPopover({ value, onChange }: Props) {
+  const { t } = useTranslation();
   const [open, setOpen] = React.useState(false);
   const [draft, setDraft] = React.useState(value || '');
   const ref = React.useRef<HTMLTextAreaElement | null>(null);
@@ -47,13 +49,13 @@ export function CommentPopover({ value, onChange }: Props) {
           {value ? (
             <span className="block truncate text-slate-200">{value}</span>
           ) : (
-            <span className="text-slate-500">—</span>
+            <span className="text-slate-500">{t('emptyPlaceholder')}</span>
           )}
         </button>
       }
     >
       <div className="p-3">
-        <div className="text-xs text-slate-400">Comment</div>
+        <div className="text-xs text-slate-400">{t('comment')}</div>
         <textarea
           ref={ref}
           value={draft}
@@ -70,7 +72,7 @@ export function CommentPopover({ value, onChange }: Props) {
             onClick={() => setOpen(false)}
             className="rounded-xl border border-slate-800 bg-slate-900/40 px-3 py-2 text-sm hover:bg-slate-900/70 transition"
           >
-            Cancel
+            {t('cancel')}
           </button>
           <button
             type="button"
@@ -80,7 +82,7 @@ export function CommentPopover({ value, onChange }: Props) {
             }}
             className="rounded-xl bg-indigo-500 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-400 transition"
           >
-            Save
+            {t('save')}
           </button>
         </div>
       </div>

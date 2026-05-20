@@ -2,7 +2,6 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Book } from '../../lib/api';
 import { StarRating } from '../StarRating';
-import { FinishedDateBadge } from './StatusBadge';
 import { StatusSelect } from './StatusSelect';
 import { DatePickerPopover } from '../DatePickerPopover';
 import { Download } from 'lucide-react';
@@ -32,7 +31,7 @@ export function BookCompactCard({ book, index, onPatchBook, onDelete, onOpenDeta
           if (e.key === 'Enter' || e.key === ' ') onOpenDetails(book._id);
         }}
         className="block w-full text-left cursor-pointer"
-        aria-label="Open details"
+        aria-label={t('openDetails')}
       >
         <div className="p-2.5">
           <div className="flex items-start gap-3">
@@ -70,7 +69,7 @@ export function BookCompactCard({ book, index, onPatchBook, onDelete, onOpenDeta
                       onDelete(book._id);
                     }}
                     className="rounded-2xl border border-slate-800 bg-slate-950/30 px-2 py-1 text-xs hover:bg-rose-500/20 hover:border-rose-500/40 transition"
-                    aria-label="Delete"
+                    aria-label={t('delete')}
                     type="button"
                   >
                     ✕

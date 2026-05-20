@@ -1,24 +1,26 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
-export function FinishedDateBadge({ 
-  finishedDate, 
-  t 
-}: { 
+export function FinishedDateBadge({
+  finishedDate,
+}: {
   finishedDate?: Date | string | null;
-  t: (key: string) => string;
 }) {
+  const { i18n } = useTranslation();
+  const locale = i18n.language === 'fr' ? 'fr-FR' : 'en-US';
+
   const label = React.useMemo(() => {
     if (!finishedDate) return null;
     const d = typeof finishedDate === 'string' ? new Date(finishedDate) : finishedDate;
     if (Number.isNaN(d.getTime())) return null;
     try {
-      return new Intl.DateTimeFormat(undefined, { month: 'short', year: 'numeric' }).format(d);
+      return new Intl.DateTimeFormat(locale, { month: 'short', year: 'numeric' }).format(d);
     } catch {
       const yyyy = d.getFullYear();
       const mm = String(d.getMonth() + 1).padStart(2, '0');
       return `${yyyy}-${mm}`;
     }
-  }, [finishedDate]);
+  }, [finishedDate, locale]);
 
   if (!label) return null;
 

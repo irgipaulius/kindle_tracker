@@ -1,0 +1,2 @@
+# Wrangler reads secrets from the repo root only.
+# Copy ../.dev.vars.example → ../.dev.vars and fill in values there.

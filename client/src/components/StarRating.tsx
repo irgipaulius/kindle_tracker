@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { Star } from 'lucide-react';
 
@@ -8,6 +9,7 @@ type Props = {
 };
 
 export function StarRating({ value, onChange }: Props) {
+  const { t } = useTranslation();
   const [hover, setHover] = React.useState<number | null>(null);
   const shown = hover ?? value;
 
@@ -24,13 +26,11 @@ export function StarRating({ value, onChange }: Props) {
             onMouseLeave={() => setHover(null)}
             onClick={() => onChange(v)}
             className="p-1 rounded-lg hover:bg-slate-900/60 transition"
-            aria-label={`Rate ${v}`}
+            aria-label={t('rateStars', { count: v })}
           >
             <Star
               className={
-                filled
-                  ? 'h-4 w-4 text-amber-300 fill-amber-300'
-                  : 'h-4 w-4 text-slate-600'
+                filled ? 'h-4 w-4 text-amber-300 fill-amber-300' : 'h-4 w-4 text-slate-600'
               }
             />
           </motion.button>
@@ -41,7 +41,7 @@ export function StarRating({ value, onChange }: Props) {
         onClick={() => onChange(0)}
         className="ml-1 text-[11px] text-slate-400 hover:text-slate-200 transition"
       >
-        Clear
+        {t('clearRating')}
       </button>
     </div>
   );

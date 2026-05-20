@@ -1,5 +1,5 @@
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ?? (import.meta.env.DEV ? 'http://localhost:5174' : '');
+/** Empty = same-origin (production on hyperreader.eu, dev via Vite proxy). */
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
 
 export type UserMe = {
   id: string;

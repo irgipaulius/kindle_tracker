@@ -155,7 +155,7 @@ export function BookCoverModal({ book, onClose, onSelectCover, t }: BookCoverMod
             <input
               value={manualUrl}
               onChange={(e) => setManualUrl(e.target.value)}
-              placeholder="https://…"
+              placeholder={t('urlPlaceholder')}
               className="w-full rounded-2xl border border-slate-800 bg-slate-950/50 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500/40"
             />
             <div className="flex items-center gap-2">

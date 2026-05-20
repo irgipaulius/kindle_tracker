@@ -1,0 +1,12 @@
+# Copy to .dev.vars in repo root (wrangler reads it next to wrangler.toml).
+# Google OAuth redirect URI must match APP_URL + /auth/google/callback
+# e.g. http://localhost:5173/auth/google/callback when using npm run dev
+
+APP_URL=http://localhost:5173
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+SESSION_SECRET=change-me-to-a-long-random-string
+
+# Optional local backdoor: GET /auth/dev-login (no UI; sign in with Google once first)
+# DEV_BYPASS_AUTH=true
+# DEV_AUTH_EMAIL=you@gmail.com
