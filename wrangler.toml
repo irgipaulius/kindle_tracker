@@ -18,5 +18,9 @@ database_name = "hyperreader"
 database_id = "97723b87-1d23-4cae-911d-e254bf4ea9dc"
 migrations_dir = "worker/migrations"
 
+# One book per tick — Open Library lookup for title, no cover yet.
+[triggers]
+crons = ["*/5 * * * *"]
+
 [dev]
 port = 8787

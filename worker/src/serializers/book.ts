@@ -1,4 +1,5 @@
 import type { BookRow } from '../db';
+import { coverUrlForClient } from '../lib/coverConstants';
 
 export function serializeBook(row: BookRow) {
   return {
@@ -7,7 +8,7 @@ export function serializeBook(row: BookRow) {
     index: row.sort_index,
     title: row.title ?? undefined,
     author: row.author ?? undefined,
-    coverUrl: row.cover_url,
+    coverUrl: coverUrlForClient(row.cover_url),
     status: row.status as 'to_read' | 'reading' | 'read',
     downloaded: Boolean(row.downloaded),
     rating: row.rating,

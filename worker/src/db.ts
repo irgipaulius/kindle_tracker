@@ -7,6 +7,7 @@ export type UserRow = {
   preferred_locale: string;
   genres_json: string;
   books_sorting_json: string;
+  books_filter_json: string;
   created_at: string;
   updated_at: string;
 };

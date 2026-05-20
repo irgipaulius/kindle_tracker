@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import { BrandMark } from '../components/BrandMark';
+import { SpreadsheetImport } from '../components/SpreadsheetImport';
 import { LocaleSwitcher } from '../components/LocaleSwitcher';
 import { api } from '../lib/api';
 import { applyLocalePreference, type AppLocale } from '../lib/localePreference';
@@ -49,6 +50,7 @@ export function AppLayout() {
 
   return (
     <div className="min-h-screen">
+      {me ? <SpreadsheetImport /> : null}
       <div className="sticky top-0 z-10 border-b border-slate-800/80 bg-slate-950/60 backdrop-blur supports-[backdrop-filter]:bg-slate-950/45">
         <div className="mx-auto max-w-6xl px-4 py-3 sm:px-6 sm:py-4 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">

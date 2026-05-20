@@ -19,8 +19,7 @@ export function serializeUser(row: UserRow) {
     picture: row.picture ?? undefined,
     preferredLocale: row.preferred_locale as 'en' | 'fr',
     genres: parseJsonArray<string>(row.genres_json, []),
-    booksSorting: parseJsonArray<BooksSorting>(row.books_sorting_json, [
-      { id: 'index', desc: false },
-    ]),
+    booksSorting: parseJsonArray<BooksSorting>(row.books_sorting_json, []),
+    booksFilter: typeof row.books_filter_json === 'string' ? row.books_filter_json : '',
   };
 }

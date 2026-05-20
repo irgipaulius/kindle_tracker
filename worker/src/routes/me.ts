@@ -3,7 +3,31 @@ import { Hono } from 'hono';
 import { findUserById } from '../db';
 import type { AppVariables, Env } from '../env';
 import { requireAuth } from '../middleware/requireAuth';
-import { serializeUser } from '../serializers/user';
+import { serializeUser, type BooksSorting } from '../serializers/user';
+
+const ALLOWED_SORT_COLUMNS = new Set([
+  'title',
+  'author',
+  'status',
+  'downloaded',
+  'rating',
+  'finishedDate',
+  'genre',
+  'language',
+  'comment',
+]);
+
+function normalizeBooksSorting(raw: unknown): BooksSorting[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .filter((s) => s && typeof (s as { id?: string }).id === 'string')
+    .map((s) => ({
+      id: String((s as { id: string }).id),
+      desc: Boolean((s as { desc?: boolean }).desc),
+    }))
+    .filter((s) => ALLOWED_SORT_COLUMNS.has(s.id))
+    .slice(0, 5);
+}
 
 export const meRoutes = new Hono<{ Bindings: Env; Variables: AppVariables }>();
 
@@ -18,7 +42,11 @@ meRoutes.get('/api/me', async (c) => {
 
 meRoutes.patch('/api/me/preferences', async (c) => {
   const userId = c.get('userId');
-  const body = await c.req.json<{ preferredLocale?: string; booksSorting?: unknown }>();
+  const body = await c.req.json<{
+    preferredLocale?: string;
+    booksSorting?: unknown;
+    booksFilter?: unknown;
+  }>();
 
   const sets: string[] = [];
   const binds: unknown[] = [];
@@ -35,15 +63,18 @@ meRoutes.patch('/api/me/preferences', async (c) => {
     if (!Array.isArray(body.booksSorting)) {
       return c.json({ error: 'invalid_booksSorting' }, 400);
     }
-    const normalized = body.booksSorting
-      .filter((s) => s && typeof (s as { id?: string }).id === 'string')
-      .map((s) => ({
-        id: String((s as { id: string }).id),
-        desc: Boolean((s as { desc?: boolean }).desc),
-      }))
-      .slice(0, 5);
+    const normalized = normalizeBooksSorting(body.booksSorting);
     sets.push('books_sorting_json = ?');
     binds.push(JSON.stringify(normalized));
+  }
+
+  if (body.booksFilter !== undefined) {
+    if (typeof body.booksFilter !== 'string') {
+      return c.json({ error: 'invalid_booksFilter' }, 400);
+    }
+    const normalized = body.booksFilter.trim().slice(0, 200);
+    sets.push('books_filter_json = ?');
+    binds.push(normalized);
   }
 
   if (sets.length === 0) {
@@ -54,6 +85,7 @@ meRoutes.patch('/api/me/preferences', async (c) => {
       id: serialized.id,
       preferredLocale: serialized.preferredLocale,
       booksSorting: serialized.booksSorting,
+      booksFilter: serialized.booksFilter,
     });
   }
 
@@ -71,6 +103,7 @@ meRoutes.patch('/api/me/preferences', async (c) => {
     id: serialized.id,
     preferredLocale: serialized.preferredLocale,
     booksSorting: serialized.booksSorting,
+    booksFilter: serialized.booksFilter,
   });
 });
 

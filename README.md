@@ -33,11 +33,13 @@ npx wrangler d1 create hyperreader
 
 Copy the `database_id` from the output into [`wrangler.toml`](wrangler.toml) (`database_id = "..."`).
 
-Apply schema locally:
+Apply schema locally (also runs automatically before `npm run dev`):
 
 ```sh
-npx wrangler d1 migrations apply hyperreader --local
+npm run db:migrate:local
 ```
+
+User list preferences (`books_sorting_json`, `books_filter_json`) sync across devices via `PATCH /api/me/preferences`.
 
 For production (you run this before/after first deploy):
 
@@ -136,6 +138,22 @@ npm run install:all && npm run build:deploy
 4. Google OAuth production redirect URI registered
 5. Visit `/health`, then sign in and add a book
 
+### Cover enrichment (cron)
+
+A Worker cron runs **every 5 minutes** (`[triggers] crons` in [`wrangler.toml`](wrangler.toml)). Each run:
+
+1. Picks one book with a **title** and **no `cover_url`** (oldest `updated_at` first)
+2. Queries [Open Library](https://openlibrary.org) (one search, `limit=1`)
+3. Saves a cover URL, or the sentinel `__no_cover__` if nothing was found (so that book is not retried)
+
+The API never exposes the sentinel — clients see `coverUrl: null` for “no cover”. Clear a cover with `PATCH` (`coverUrl: null`) to queue it again.
+
+Test the handler locally:
+
+```sh
+npx wrangler dev --test-scheduled
+```
+
 ## Scripts (repo root)
 
 | Script | Description |
@@ -160,3 +178,5 @@ npm run install:all && npm run build:deploy
 | PATCH | `/api/me/genres` |
 | GET/POST | `/api/books` |
 | PATCH/DELETE | `/api/books/:id` |
+| POST | `/api/books/:id/fetch-cover` |
+| GET | `/api/books/library` (read books for **The Study** view; `/api/books/shelf` alias) |

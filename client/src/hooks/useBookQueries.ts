@@ -18,6 +18,8 @@ export function useBookQueries() {
   return {
     books,
     genreOptions,
+    booksSorting: meQuery.data?.booksSorting,
+    booksFilter: meQuery.data?.booksFilter ?? '',
     isLoading: booksQuery.isLoading || meQuery.isLoading,
     isError: booksQuery.isError || meQuery.isError,
     error: booksQuery.error || meQuery.error,

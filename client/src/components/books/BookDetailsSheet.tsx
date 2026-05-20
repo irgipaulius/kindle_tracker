@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Book } from '../../lib/api';
+import { api, Book } from '../../lib/api';
 import { BookTitleAutocomplete } from '../BookTitleAutocomplete';
 import { DatePickerPopover } from '../DatePickerPopover';
 import { GenreInput } from '../GenreInput';
@@ -31,10 +31,41 @@ export function BookDetailsSheet({
   t 
 }: BookDetailsSheetProps) {
   const [coverUrl, setCoverUrl] = useState<string | null>(book.coverUrl || null);
+  const [coverFetching, setCoverFetching] = useState(false);
+  const coverAttemptedRef = React.useRef<string | null>(null);
 
   React.useEffect(() => {
     setCoverUrl(book.coverUrl || null);
   }, [book.coverUrl]);
+
+  React.useEffect(() => {
+    const title = book.title?.trim();
+    if (book.coverUrl || !title) return;
+    if (coverAttemptedRef.current === book._id) return;
+
+    coverAttemptedRef.current = book._id;
+    let cancelled = false;
+
+    (async () => {
+      setCoverFetching(true);
+      try {
+        const { book: updated, outcome } = await api.fetchBookCover(book._id);
+        if (cancelled) return;
+        if (outcome === 'found' && updated.coverUrl) {
+          setCoverUrl(updated.coverUrl);
+          onPatchBook(book._id, { coverUrl: updated.coverUrl });
+        }
+      } catch {
+        // Leave placeholder; cron may fill later.
+      } finally {
+        if (!cancelled) setCoverFetching(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [book._id, book.coverUrl, book.title]);
 
   return (
     <Dialog.Root open onOpenChange={(open) => !open && onClose()}>
@@ -99,8 +130,11 @@ export function BookDetailsSheet({
                           className="h-full w-full object-cover"
                         />
                       ) : (
-                        <div className="flex h-full w-full items-center justify-center">
+                        <div className="flex h-full w-full flex-col items-center justify-center gap-2">
                           <BookOpen className="h-8 w-8 text-violet-300/50" />
+                          {coverFetching ? (
+                            <span className="text-[10px] text-violet-300/60">{t('loading')}</span>
+                          ) : null}
                         </div>
                       )}
                     </div>

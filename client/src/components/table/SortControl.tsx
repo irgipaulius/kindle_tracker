@@ -6,10 +6,11 @@ import { Popover } from '../Popover';
 interface SortControlProps {
   sorting: SortingState;
   onSortingChange: (sorting: SortingState | ((prev: SortingState) => SortingState)) => void;
+  onClearSorting: () => void;
   availableColumns: { id: string; label: string }[];
 }
 
-export function SortControl({ sorting, onSortingChange, availableColumns }: SortControlProps) {
+export function SortControl({ sorting, onSortingChange, onClearSorting, availableColumns }: SortControlProps) {
   const { t } = useTranslation();
   const [open, setOpen] = React.useState(false);
 
@@ -38,6 +39,13 @@ export function SortControl({ sorting, onSortingChange, availableColumns }: Sort
     onSortingChange((prev: SortingState) => [...prev, { id: defaultId, desc: false }]);
   }
 
+  function clearAll() {
+    onClearSorting();
+    setOpen(false);
+  }
+
+  const hasSort = active.length > 0;
+
   return (
     <Popover
       open={open}
@@ -47,12 +55,22 @@ export function SortControl({ sorting, onSortingChange, availableColumns }: Sort
       trigger={
         <button
           type="button"
-          className="flex items-center gap-2 rounded-2xl border border-slate-800/80 bg-slate-900/35 px-3 py-2 text-sm hover:bg-slate-900/55 transition shadow-[0_0_0_1px_rgba(255,255,255,0.03)]"
+          className={`flex items-center gap-2 rounded-2xl border px-3 py-2 text-sm transition shadow-[0_0_0_1px_rgba(255,255,255,0.03)] ${
+            hasSort
+              ? 'border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/15'
+              : 'border-slate-800/80 bg-slate-900/35 hover:bg-slate-900/55'
+          }`}
         >
           <span className="text-slate-300">{t('sort')}</span>
-          <span className="text-slate-500">•</span>
-          <span className="text-slate-200">{primaryCol?.label || t('title')}</span>
-          <span className="text-slate-400">{primaryDir === 'desc' ? '▼' : '▲'}</span>
+          {hasSort ? (
+            <>
+              <span className="text-slate-500">•</span>
+              <span className="text-slate-200">{primaryCol?.label || t('title')}</span>
+              <span className="text-slate-400">{primaryDir === 'desc' ? '▼' : '▲'}</span>
+            </>
+          ) : (
+            <span className="text-slate-500">{t('sortNone')}</span>
+          )}
         </button>
       }
     >
@@ -131,6 +149,16 @@ export function SortControl({ sorting, onSortingChange, availableColumns }: Sort
           >
             + {t('addSort')}
           </button>
+
+          {hasSort ? (
+            <button
+              type="button"
+              onClick={clearAll}
+              className="rounded-2xl border border-slate-800/80 bg-slate-900/35 px-3 py-2 text-sm text-slate-300 hover:bg-slate-900/55 hover:text-white transition"
+            >
+              {t('clearSort')}
+            </button>
+          ) : null}
         </div>
       </div>
     </Popover>

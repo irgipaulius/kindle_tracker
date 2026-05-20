@@ -6,7 +6,7 @@ CREATE TABLE users (
   picture TEXT,
   preferred_locale TEXT NOT NULL DEFAULT 'en' CHECK (preferred_locale IN ('en', 'fr')),
   genres_json TEXT NOT NULL DEFAULT '[]',
-  books_sorting_json TEXT NOT NULL DEFAULT '[{"id":"index","desc":false}]',
+  books_sorting_json TEXT NOT NULL DEFAULT '[]',
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   updated_at TEXT NOT NULL DEFAULT (datetime('now'))
 );

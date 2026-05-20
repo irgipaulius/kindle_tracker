@@ -2,6 +2,346 @@
 @tailwind components;
 @tailwind utilities;
 
+@keyframes shelfHudIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@layer components {
+  /* —— The Study: modern bookcase —— */
+  .study-room {
+    background:
+      radial-gradient(ellipse 90% 60% at 50% -10%, rgba(99, 102, 241, 0.12), transparent 55%),
+      linear-gradient(180deg, rgba(15, 23, 42, 0.92) 0%, rgba(2, 6, 23, 0.98) 100%);
+  }
+
+  .study-cabinet {
+    position: relative;
+    overflow: visible;
+    border-radius: 1rem;
+    border: 1px solid rgba(71, 85, 105, 0.45);
+    background: linear-gradient(180deg, rgba(30, 41, 59, 0.55) 0%, rgba(15, 23, 42, 0.85) 100%);
+    box-shadow:
+      0 24px 48px rgba(0, 0, 0, 0.35),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+  }
+
+  /* Side posts + top cap read as one piece of furniture */
+  .study-cabinet::before,
+  .study-cabinet::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 0.45rem;
+    border-radius: 0.35rem 0 0 0.35rem;
+    background: linear-gradient(90deg, rgba(51, 65, 85, 0.9), rgba(30, 41, 59, 0.5));
+    box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.05);
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .study-cabinet::before {
+    left: 0;
+    border-radius: 0.35rem 0 0 0.35rem;
+  }
+
+  .study-cabinet::after {
+    right: 0;
+    border-radius: 0 0.35rem 0.35rem 0;
+    background: linear-gradient(270deg, rgba(51, 65, 85, 0.9), rgba(30, 41, 59, 0.5));
+    box-shadow: inset 1px 0 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .study-cabinet-inner {
+    position: relative;
+    overflow: visible;
+    padding: 0.65rem 0.85rem 0.5rem;
+    z-index: 1;
+  }
+
+  .study-cabinet-inner::before {
+    content: '';
+    display: block;
+    height: 0.35rem;
+    margin: 0 0.35rem 0.5rem;
+    border-radius: 0.25rem 0.25rem 0 0;
+    background: linear-gradient(180deg, rgba(71, 85, 105, 0.5), rgba(51, 65, 85, 0.75));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+
+  .study-shelf-row {
+    position: relative;
+    padding-bottom: 0.15rem;
+  }
+
+  .study-shelf-row:not(:last-child) {
+    margin-bottom: 0.15rem;
+  }
+
+  .study-shelf-label {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.25rem 0.75rem;
+    padding: 0.35rem 0.15rem 0.4rem;
+  }
+
+  .study-shelf-label-text {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(226, 232, 240, 0.88);
+  }
+
+  .study-shelf-label-meta {
+    font-size: 0.62rem;
+    color: rgba(148, 163, 184, 0.75);
+  }
+
+  .study-shelf-bay {
+    position: relative;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(100, 116, 139, 0.5) transparent;
+    padding: 3rem 0.4rem 0;
+    margin: 0 0.1rem;
+    border-radius: 0.35rem;
+    background:
+      linear-gradient(180deg, rgba(15, 23, 42, 0.65) 0%, rgba(2, 6, 23, 0.9) 100%);
+    box-shadow: inset 0 6px 14px rgba(0, 0, 0, 0.45);
+  }
+
+  @media (min-width: 640px) {
+    .study-shelf-bay {
+      padding-top: 3.5rem;
+    }
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .study-shelf-bay {
+      overflow-y: visible;
+    }
+  }
+
+  .study-shelf-books {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    width: max-content;
+    min-width: 100%;
+    height: 8.25rem;
+    padding-bottom: 0.25rem;
+  }
+
+  @media (min-width: 640px) {
+    .study-shelf-books {
+      height: 9.25rem;
+    }
+  }
+
+  /* Full-height pocket; book height varies inside and sits on the shelf board */
+  .study-book-slot {
+    display: flex;
+    height: 8.25rem;
+    width: 2.35rem;
+    flex-shrink: 0;
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  @media (min-width: 640px) {
+    .study-book-slot {
+      height: 9.25rem;
+      width: 2.65rem;
+    }
+  }
+
+  /* Horizontal shelf plank between rows */
+  .study-shelf-board {
+    height: 0.6rem;
+    margin: 0 0.35rem;
+    border-radius: 0 0 0.2rem 0.2rem;
+    background: linear-gradient(
+      180deg,
+      rgba(71, 85, 105, 0.55) 0%,
+      rgba(51, 65, 85, 0.85) 45%,
+      rgba(30, 41, 59, 0.95) 100%
+    );
+    box-shadow:
+      0 6px 12px rgba(0, 0, 0, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  }
+
+  .study-shelf-row:last-child .study-shelf-board {
+    margin-bottom: 0.15rem;
+  }
+
+  .study-shelf-fade {
+    position: absolute;
+    bottom: 0;
+    top: 0;
+    z-index: 10;
+    width: 1.5rem;
+    pointer-events: none;
+  }
+
+  .study-shelf-fade--left {
+    left: 0;
+    background: linear-gradient(90deg, rgba(2, 6, 23, 0.95), transparent);
+  }
+
+  .study-shelf-fade--right {
+    right: 0;
+    background: linear-gradient(270deg, rgba(2, 6, 23, 0.95), transparent);
+  }
+
+  .library-book-slot {
+    transform-style: preserve-3d;
+  }
+
+  .library-book-slot:hover,
+  .library-book-slot:focus-visible {
+    z-index: 40;
+  }
+
+  .library-spine-title-wrap {
+    position: absolute;
+    inset: 0.28rem 0.06rem;
+    display: flex;
+    max-width: 100%;
+    max-height: 100%;
+    flex-direction: row-reverse;
+    align-items: center;
+    justify-content: center;
+    gap: 0.06rem;
+    overflow: hidden;
+    font-family: 'Cormorant Garamond', 'Palatino Linotype', 'Book Antiqua', Georgia, serif;
+    font-weight: 600;
+    font-style: italic;
+    color: rgba(255, 248, 235, 0.92);
+    text-shadow:
+      0 1px 0 rgba(0, 0, 0, 0.55),
+      0 0 8px rgba(0, 0, 0, 0.25);
+  }
+
+  .library-spine-title-col {
+    max-height: 100%;
+    overflow: hidden;
+    text-align: center;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+  }
+
+  .library-paper {
+    background-color: #f6f1e8;
+    background-image:
+      radial-gradient(rgba(120, 100, 70, 0.07) 0.6px, transparent 0.6px),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, transparent 35%),
+      linear-gradient(135deg, #faf6ee 0%, #ebe4d6 100%);
+    background-size: 4px 4px, 100% 100%, 100% 100%;
+    box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.04), 2px 2px 8px rgba(0, 0, 0, 0.12);
+  }
+
+  .library-crease {
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0.12) 40%, transparent 100%);
+  }
+
+  .library-spine {
+    box-shadow:
+      inset 2px 0 4px rgba(255, 255, 255, 0.08),
+      inset -2px 0 6px rgba(0, 0, 0, 0.4),
+      1px 0 0 rgba(0, 0, 0, 0.2);
+  }
+
+  /* Legacy shelf (unused in library view) */
+  .shelf-niche {
+    background:
+      radial-gradient(ellipse 120% 80% at 50% 100%, rgba(80, 52, 32, 0.35), transparent 55%),
+      linear-gradient(180deg, rgba(36, 26, 18, 0.98) 0%, rgba(14, 10, 7, 1) 100%),
+      repeating-linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.025) 0px,
+        rgba(255, 255, 255, 0.025) 1px,
+        transparent 1px,
+        transparent 20px
+      );
+    box-shadow: inset 0 1px 0 rgba(255, 220, 180, 0.06);
+  }
+
+  .shelf-board {
+    background: linear-gradient(180deg, #7a5536 0%, #5a3d26 42%, #3f2a1a 100%);
+    box-shadow:
+      0 8px 18px rgba(0, 0, 0, 0.6),
+      inset 0 2px 0 rgba(255, 220, 180, 0.28),
+      inset 0 -4px 8px rgba(0, 0, 0, 0.4);
+  }
+
+  .shelf-board-lip {
+    background: linear-gradient(180deg, #9a7048 0%, #6b4a30 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 235, 210, 0.35);
+  }
+
+  .shelf-bracket {
+    background: linear-gradient(180deg, #4a3525 0%, #2a1e14 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  }
+
+  .shelf-book-slot {
+    transform-style: preserve-3d;
+  }
+
+  .shelf-book-slot:hover,
+  .shelf-book-slot:focus-visible {
+    z-index: 40;
+  }
+
+  .shelf-paper {
+    background-color: #f6f1e8;
+    background-image:
+      radial-gradient(rgba(120, 100, 70, 0.07) 0.6px, transparent 0.6px),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, transparent 35%),
+      linear-gradient(135deg, #faf6ee 0%, #ebe4d6 100%);
+    background-size:
+      4px 4px,
+      100% 100%,
+      100% 100%;
+    box-shadow:
+      inset 0 0 12px rgba(0, 0, 0, 0.04),
+      2px 2px 8px rgba(0, 0, 0, 0.12);
+  }
+
+  .shelf-crease {
+    background: linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.45) 0%,
+      rgba(0, 0, 0, 0.15) 35%,
+      transparent 100%
+    );
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shelf-book-slot *,
+  .library-book-slot * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 :root {
   color-scheme: dark;
 }

@@ -1,5 +1,6 @@
+import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { api, Book } from '../lib/api';
+import { api, Book, UserMe } from '../lib/api';
 
 export function useBookMutations() {
   const queryClient = useQueryClient();
@@ -25,6 +26,7 @@ export function useBookMutations() {
         const list = cur || [];
         return list.map((b) => (b._id === updated._id ? { ...b, ...updated } : b));
       });
+      void queryClient.invalidateQueries({ queryKey: ['library'] });
     },
   });
 
@@ -32,6 +34,7 @@ export function useBookMutations() {
     mutationFn: (payload: { title: string }) => api.createBook(payload),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['books'] });
+      await queryClient.invalidateQueries({ queryKey: ['library'] });
     },
   });
 
@@ -39,6 +42,7 @@ export function useBookMutations() {
     mutationFn: (id: string) => api.deleteBook(id),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['books'] });
+      await queryClient.invalidateQueries({ queryKey: ['library'] });
     },
   });
 
@@ -51,8 +55,21 @@ export function useBookMutations() {
 
   const saveSortingMutation = useMutation({
     mutationFn: (booksSorting: { id: string; desc: boolean }[]) => api.setBooksSorting(booksSorting),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['me'] });
+    onSuccess: (data) => {
+      queryClient.setQueryData<UserMe>(['me'], (cur) =>
+        cur ? { ...cur, booksSorting: data.booksSorting, booksFilter: data.booksFilter ?? cur.booksFilter } : cur
+      );
+    },
+  });
+
+  const saveFilterMutation = useMutation({
+    mutationFn: (booksFilter: string) => api.setBooksFilter(booksFilter),
+    onSuccess: (data) => {
+      queryClient.setQueryData<UserMe>(['me'], (cur) =>
+        cur
+          ? { ...cur, booksFilter: data.booksFilter, booksSorting: data.booksSorting ?? cur.booksSorting }
+          : cur
+      );
     },
   });
 
@@ -74,9 +91,19 @@ export function useBookMutations() {
     setGenresMutation.mutate([v]);
   };
 
-  const saveSorting = (sorting: { id: string; desc: boolean }[]) => {
-    saveSortingMutation.mutate(sorting);
-  };
+  const saveSorting = useCallback(
+    (sorting: { id: string; desc: boolean }[]) => {
+      saveSortingMutation.mutate(sorting);
+    },
+    [saveSortingMutation]
+  );
+
+  const saveFilter = useCallback(
+    (filter: string) => {
+      saveFilterMutation.mutate(filter);
+    },
+    [saveFilterMutation]
+  );
 
   return {
     patchBook,
@@ -84,6 +111,7 @@ export function useBookMutations() {
     deleteBook,
     upsertGenre,
     saveSorting,
+    saveFilter,
     isUpdating: updateBookMutation.isPending,
     isCreating: createBookMutation.isPending,
     isDeleting: deleteBookMutation.isPending,

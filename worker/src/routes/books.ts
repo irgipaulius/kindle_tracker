@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 
 import type { BookRow } from '../db';
 import type { AppVariables, Env } from '../env';
+import { enrichBookCover } from '../lib/coverEnrichment';
 import { requireAuth } from '../middleware/requireAuth';
 import { serializeBook } from '../serializers/book';
 
@@ -99,6 +100,25 @@ booksRoutes.post('/api/books', async (c) => {
     .first<BookRow>();
 
   return c.json(serializeBook(row!), 201);
+});
+
+booksRoutes.post('/api/books/:id/fetch-cover', async (c) => {
+  const userId = c.get('userId');
+  const bookId = c.req.param('id');
+
+  const row = await c.env.DB.prepare('SELECT * FROM books WHERE id = ? AND user_id = ?')
+    .bind(bookId, userId)
+    .first<BookRow>();
+
+  if (!row) return c.json({ error: 'not_found' }, 404);
+  if (!row.title?.trim()) return c.json({ error: 'title_required' }, 400);
+
+  try {
+    const { book, outcome } = await enrichBookCover(c.env.DB, row);
+    return c.json({ book: serializeBook(book), outcome });
+  } catch {
+    return c.json({ error: 'cover_lookup_failed' }, 502);
+  }
 });
 
 booksRoutes.patch('/api/books/:id', async (c) => {

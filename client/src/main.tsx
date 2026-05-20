@@ -9,6 +9,10 @@ import { ToastProvider, useToast } from './components/Toast';
 
 const queryClient = new QueryClient({
   defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000,
+      refetchOnWindowFocus: false,
+    },
     mutations: {
       onError: (error: any) => {
         const message = error?.message || error?.error || i18n.t('errorGeneric');

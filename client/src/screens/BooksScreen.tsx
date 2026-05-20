@@ -18,42 +18,77 @@ import { GenreInput } from '../components/GenreInput';
 import { StarRating } from '../components/StarRating';
 import { TableFilters } from '../components/TableFilters';
 import { ViewToggle } from '../components/ViewToggle';
+import { loadBooksViewMode, saveBooksViewMode, type BooksViewMode } from '../lib/booksViewMode';
 import { SortControl } from '../components/table/SortControl';
 import { SortableHeader } from '../components/table/SortableHeader';
 import { InlineText } from '../components/table/InlineText';
 import { BookCompactCard } from '../components/books/BookCompactCard';
 import { BookDetailsSheet } from '../components/books/BookDetailsSheet';
+import { ReadingLibrary } from '../components/library/ReadingLibrary';
 import { useBookQueries } from '../hooks/useBookQueries';
 import { useBookMutations } from '../hooks/useBookMutations';
 import { bookColumnLabel } from '../lib/columnLabels';
 
 export function BooksScreen() {
   const { t } = useTranslation();
-  const { books, genreOptions, isLoading, isError, error } = useBookQueries();
-  const { patchBook, createBook, deleteBook, upsertGenre, saveSorting } = useBookMutations();
+  const { books, genreOptions, booksSorting, booksFilter, isLoading, isError, error } = useBookQueries();
+  const { patchBook, createBook, deleteBook, upsertGenre, saveSorting, saveFilter } = useBookMutations();
 
-  const [viewMode, setViewMode] = React.useState<'grid' | 'list'>(() => {
-    const saved = window.localStorage.getItem('books.viewMode');
-    return saved === 'list' || saved === 'grid' ? saved : 'grid';
-  });
+  const [viewMode, setViewMode] = React.useState<BooksViewMode>(loadBooksViewMode);
 
   React.useEffect(() => {
-    window.localStorage.setItem('books.viewMode', viewMode);
+    saveBooksViewMode(viewMode);
   }, [viewMode]);
+
+  const isLibraryView = viewMode === 'library';
 
   const [detailsId, setDetailsId] = React.useState<string | null>(null);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState('');
+  const sortingHydrated = React.useRef(false);
+  const filterHydrated = React.useRef(false);
+  const lastSavedSorting = React.useRef<string | null>(null);
+  const lastSavedFilter = React.useRef<string | null>(null);
 
   const detailsBook = React.useMemo(() => books.find((b) => b._id === detailsId) || null, [books, detailsId]);
 
   React.useEffect(() => {
+    if (sortingHydrated.current || booksSorting === undefined) return;
+    sortingHydrated.current = true;
+    const next = booksSorting.map((s) => ({ id: s.id, desc: Boolean(s.desc) }));
+    lastSavedSorting.current = JSON.stringify(next);
+    setSorting(next);
+  }, [booksSorting]);
+
+  React.useEffect(() => {
+    if (filterHydrated.current || booksFilter === undefined) return;
+    filterHydrated.current = true;
+    lastSavedFilter.current = booksFilter;
+    setGlobalFilter(booksFilter);
+  }, [booksFilter]);
+
+  React.useEffect(() => {
+    const payload = sorting.map((s) => ({ id: s.id, desc: Boolean(s.desc) }));
+    const key = JSON.stringify(payload);
+    if (key === lastSavedSorting.current) return;
+
     const handle = window.setTimeout(() => {
-      if (sorting.length === 0) return;
-      saveSorting(sorting.map((s) => ({ id: s.id, desc: Boolean(s.desc) })));
+      lastSavedSorting.current = key;
+      saveSorting(payload);
     }, 500);
     return () => window.clearTimeout(handle);
   }, [sorting, saveSorting]);
+
+  React.useEffect(() => {
+    if (!filterHydrated.current) return;
+
+    const handle = window.setTimeout(() => {
+      if (globalFilter === lastSavedFilter.current) return;
+      lastSavedFilter.current = globalFilter;
+      saveFilter(globalFilter);
+    }, 400);
+    return () => window.clearTimeout(handle);
+  }, [globalFilter, saveFilter]);
 
   const columns = useMemo<ColumnDef<Book>[]>(
     () => [
@@ -226,43 +261,60 @@ export function BooksScreen() {
 
       <div className="grid grid-cols-1 gap-3 sm:flex sm:items-center sm:justify-between">
         <div className="min-w-0">
-          <TableFilters globalFilter={globalFilter} onGlobalFilterChange={setGlobalFilter} />
-        </div>
-        <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:justify-end sm:gap-3">
-          <div className="min-w-0">
-            <SortControl sorting={sorting} onSortingChange={setSorting} availableColumns={availableColumns} />
-          </div>
-          <div className="min-w-0">
-            <ViewToggle viewMode={viewMode} onViewModeChange={setViewMode} />
-          </div>
-        </div>
-      </div>
-
-      <div
-        className={
-          viewMode === 'grid'
-            ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3'
-            : 'grid grid-cols-1 gap-3'
-        }
-      >
-        {rows.map((row, idx) => (
-          <BookCompactCard
-            key={row.original._id}
-            book={row.original}
-            index={idx}
-            onPatchBook={patchBook}
-            onDelete={deleteBook}
-            onOpenDetails={setDetailsId}
-            t={t}
+          <TableFilters
+            globalFilter={globalFilter}
+            onGlobalFilterChange={setGlobalFilter}
+            onClearFilter={() => setGlobalFilter('')}
           />
-        ))}
+        </div>
+        <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
+          {!isLibraryView ? (
+            <SortControl
+              sorting={sorting}
+              onSortingChange={setSorting}
+              onClearSorting={() => setSorting([])}
+              availableColumns={availableColumns}
+            />
+          ) : null}
+          <ViewToggle viewMode={viewMode} onViewModeChange={setViewMode} />
+        </div>
       </div>
 
-      {rows.length === 0 ? (
-        <div className="rounded-3xl border border-slate-800/80 bg-slate-900/20 p-8 text-center text-slate-400">
-          {t('noBooks')}
-        </div>
-      ) : null}
+      {isLibraryView ? (
+        <ReadingLibrary
+          searchQuery={globalFilter}
+          genreOrder={genreOptions}
+          onBookSelect={(id) => setDetailsId(id)}
+        />
+      ) : (
+        <>
+          <div
+            className={
+              viewMode === 'grid'
+                ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3'
+                : 'grid grid-cols-1 gap-3'
+            }
+          >
+            {rows.map((row, idx) => (
+              <BookCompactCard
+                key={row.original._id}
+                book={row.original}
+                index={idx}
+                onPatchBook={patchBook}
+                onDelete={deleteBook}
+                onOpenDetails={setDetailsId}
+                t={t}
+              />
+            ))}
+          </div>
+
+          {rows.length === 0 ? (
+            <div className="rounded-3xl border border-slate-800/80 bg-slate-900/20 p-8 text-center text-slate-400">
+              {t('noBooks')}
+            </div>
+          ) : null}
+        </>
+      )}
 
       {isError ? (
         <div className="text-sm text-rose-300">{String(error)}</div>

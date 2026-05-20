@@ -9,6 +9,26 @@ export type UserMe = {
   preferredLocale: 'en' | 'fr';
   genres: string[];
   booksSorting?: { id: string; desc: boolean }[];
+  booksFilter?: string;
+};
+
+export type ShelfBook = {
+  id: string;
+  title: string;
+  author?: string;
+  coverUrl: string | null;
+  rating: number;
+  finishedDate: string | null;
+  genre?: string;
+};
+
+export type ShelfResponse = {
+  books: ShelfBook[];
+  stats: {
+    totalRead: number;
+    withCover: number;
+    avgRating: number;
+  };
 };
 
 export type Book = {
@@ -55,9 +75,22 @@ export const api = {
       body: JSON.stringify({ preferredLocale }),
     }),
   setBooksSorting: (booksSorting: { id: string; desc: boolean }[]) =>
-    apiFetch<{ id: string; booksSorting: { id: string; desc: boolean }[] }>('/api/me/preferences', {
+    apiFetch<{
+      id: string;
+      booksSorting: { id: string; desc: boolean }[];
+      booksFilter?: string;
+    }>('/api/me/preferences', {
       method: 'PATCH',
       body: JSON.stringify({ booksSorting }),
+    }),
+  setBooksFilter: (booksFilter: string) =>
+    apiFetch<{
+      id: string;
+      booksFilter: string;
+      booksSorting?: { id: string; desc: boolean }[];
+    }>('/api/me/preferences', {
+      method: 'PATCH',
+      body: JSON.stringify({ booksFilter }),
     }),
   setGenres: (genres: string[]) =>
     apiFetch<{ id: string; genres: string[] }>('/api/me/genres', {
@@ -67,6 +100,7 @@ export const api = {
   logout: () => apiFetch<{ ok: true }>('/auth/logout', { method: 'POST' }),
 
   listBooks: () => apiFetch<Book[]>('/api/books'),
+  getLibrary: () => apiFetch<ShelfResponse>('/api/books/library'),
   createBook: (payload: Partial<Book> & { title: string }) =>
     apiFetch<Book>('/api/books', {
       method: 'POST',
@@ -78,4 +112,15 @@ export const api = {
       body: JSON.stringify(patch),
     }),
   deleteBook: (id: string) => apiFetch<{ ok: true }>(`/api/books/${id}`, { method: 'DELETE' }),
+
+  fetchBookCover: (id: string) =>
+    apiFetch<{ book: Book; outcome: 'found' | 'none' | 'skipped' }>(`/api/books/${id}/fetch-cover`, {
+      method: 'POST',
+    }),
+
+  importBooks: (books: unknown[], replace: boolean) =>
+    apiFetch<{ ok: true; imported: number; genresAdded: number }>('/api/books/import', {
+      method: 'POST',
+      body: JSON.stringify({ books, replace }),
+    }),
 };
