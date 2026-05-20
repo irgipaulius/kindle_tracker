@@ -15,7 +15,7 @@ run_worker_first = true
 binding = "DB"
 database_name = "hyperreader"
 # Run: npx wrangler d1 create hyperreader — paste the returned id here before --remote deploy.
-database_id = "REPLACE_AFTER_wrangler_d1_create"
+database_id = "97723b87-1d23-4cae-911d-e254bf4ea9dc"
 migrations_dir = "worker/migrations"
 
 [dev]
