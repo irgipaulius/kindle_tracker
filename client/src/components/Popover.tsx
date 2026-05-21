@@ -1,6 +1,7 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useMobileBackClose } from '../hooks/useMobileBackClose';
 
 type Props = {
   open: boolean;
@@ -20,7 +21,10 @@ export function Popover({
   widthClassName = 'w-80',
 }: Props) {
   const triggerRef = React.useRef<HTMLSpanElement | null>(null);
+  const popoverId = React.useId();
   const [pos, setPos] = React.useState<{ top: number; left: number }>({ top: 0, left: 0 });
+
+  useMobileBackClose(open, () => onOpenChange(false), `popover:${popoverId}`);
 
   const recompute = React.useCallback(() => {
     const el = triggerRef.current;

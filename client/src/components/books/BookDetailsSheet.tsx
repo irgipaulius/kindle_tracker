@@ -10,6 +10,7 @@ import { InlineText } from '../table/InlineText';
 import { statusLabel } from '../../utils/bookHelpers';
 import { StatusSelect } from './StatusSelect';
 import { X, BookOpen, Calendar, Star, Tag, Globe, MessageSquare, Download } from 'lucide-react';
+import { useMobileBackClose } from '../../hooks/useMobileBackClose';
 
 interface BookDetailsSheetProps {
   book: Book;
@@ -66,6 +67,8 @@ export function BookDetailsSheet({
       cancelled = true;
     };
   }, [book._id, book.coverUrl, book.title]);
+
+  useMobileBackClose(true, onClose, `book-details:${book._id}`);
 
   return (
     <Dialog.Root open onOpenChange={(open) => !open && onClose()}>

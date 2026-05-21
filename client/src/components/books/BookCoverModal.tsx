@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { Book } from '../../lib/api';
+import { useMobileBackClose } from '../../hooks/useMobileBackClose';
 
 interface BookCoverModalProps {
   book: Book;
@@ -10,28 +11,7 @@ interface BookCoverModalProps {
 }
 
 export function BookCoverModal({ book, onClose, onSelectCover, t }: BookCoverModalProps) {
-  // Handle browser back button on mobile
-  useEffect(() => {
-    const handlePopState = (e: PopStateEvent) => {
-      e.preventDefault();
-      onClose();
-    };
-
-    // Add history entry only on mobile
-    const isMobile = window.innerWidth < 640;
-    if (isMobile) {
-      window.history.pushState({ modal: true }, '');
-      window.addEventListener('popstate', handlePopState);
-    }
-
-    return () => {
-      window.removeEventListener('popstate', handlePopState);
-      // Go back in history if we added an entry
-      if (isMobile) {
-        window.history.back();
-      }
-    };
-  }, [onClose]);
+  useMobileBackClose(true, onClose, `book-cover:${book._id}`);
 
   const [options, setOptions] = React.useState<string[]>([]);
   const [loading, setLoading] = React.useState(false);

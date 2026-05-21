@@ -11,6 +11,7 @@ import {
 } from './libraryLayout';
 import { LibraryBookcase } from './LibraryBookcase';
 import { useTouchLikeUI } from './useLibraryCaseCapacity';
+import { useMobileBackClose } from '../../hooks/useMobileBackClose';
 
 const ORGANIZE_STORAGE_KEY = 'library.organizeBy';
 
@@ -33,6 +34,12 @@ export function ReadingLibrary({ onBookSelect, searchQuery = '', genreOrder = []
   const [organizeBy, setOrganizeBy] = React.useState<LibraryOrganizeBy>(loadOrganizeBy);
   const [previewId, setPreviewId] = React.useState<string | null>(null);
   const touchLike = useTouchLikeUI();
+
+  useMobileBackClose(
+    touchLike && previewId !== null,
+    () => setPreviewId(null),
+    previewId ? `library-preview:${previewId}` : 'library-preview:none'
+  );
 
   React.useEffect(() => {
     if (!previewId) return;

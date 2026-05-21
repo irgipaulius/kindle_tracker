@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import { applyLocalePreference, type AppLocale } from '../lib/localePreference';
+import { useMobileBackClose } from '../hooks/useMobileBackClose';
 
 type LocaleSwitcherProps = {
   /** Called after UI language changes (e.g. persist to account API). */
@@ -14,6 +15,8 @@ export function LocaleSwitcher({ onLocaleChange, className = '' }: LocaleSwitche
   const { t, i18n } = useTranslation();
   const [open, setOpen] = React.useState(false);
   const locale: AppLocale = i18n.language === 'fr' ? 'fr' : 'en';
+
+  useMobileBackClose(open, () => setOpen(false), 'locale-switcher');
 
   async function select(next: AppLocale) {
     applyLocalePreference(next);

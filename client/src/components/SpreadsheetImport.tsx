@@ -4,6 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import { api } from '../lib/api';
 import { parseSpreadsheetText } from '../lib/parseSpreadsheet';
+import { useMobileBackClose } from '../hooks/useMobileBackClose';
 
 export function SpreadsheetImport() {
   const { t } = useTranslation();
@@ -13,6 +14,8 @@ export function SpreadsheetImport() {
   const [busy, setBusy] = React.useState(false);
   const [message, setMessage] = React.useState<string | null>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
+
+  useMobileBackClose(open, () => setOpen(false), 'import-panel');
 
   async function onFile(file: File) {
     setBusy(true);
